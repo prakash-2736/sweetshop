@@ -1,5 +1,22 @@
 const mongoose = require("mongoose");
 
+const ProductImageSchema = new mongoose.Schema({
+  url: {
+    type: String,
+    required: [true, "Image URL is required"],
+    trim: true,
+  },
+  publicId: {
+    type: String,
+    required: [true, "Cloudinary public ID is required"],
+    trim: true,
+  },
+  isPrimary: {
+    type: Boolean,
+    default: false,
+  },
+});
+
 const ProductSchema = new mongoose.Schema(
   {
     name: {
@@ -7,6 +24,7 @@ const ProductSchema = new mongoose.Schema(
       required: [true, "Product name is required"],
       unique: true,
       trim: true,
+      index: true,
     },
     slug: {
       type: String,
@@ -19,6 +37,7 @@ const ProductSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "Category",
       required: [true, "Category reference is required"],
+      index: true,
     },
     description: {
       type: String,
@@ -28,6 +47,7 @@ const ProductSchema = new mongoose.Schema(
       type: Number,
       required: [true, "Product price is required"],
       min: [0, "Price cannot be negative"],
+      index: true,
     },
     discountPrice: {
       type: Number,
@@ -43,12 +63,25 @@ const ProductSchema = new mongoose.Schema(
       required: [true, "Stock level is required"],
       default: 0,
       min: [0, "Stock cannot be negative"],
+      index: true,
     },
+    lowStockThreshold: {
+      type: Number,
+      default: 10,
+    },
+    status: {
+      type: String,
+      enum: ["Draft", "Pending Review", "Published", "Archived", "Out Of Stock"],
+      default: "Draft",
+      index: true,
+    },
+    images: [ProductImageSchema],
     rating: {
       type: Number,
       default: 4.5,
-      min: [1, "Rating must be at least 1"],
+      min: [0, "Rating must be at least 0"],
       max: [5, "Rating cannot exceed 5"],
+      index: true,
     },
     reviewCount: {
       type: Number,
@@ -69,6 +102,7 @@ const ProductSchema = new mongoose.Schema(
     ingredients: [
       {
         type: String,
+        trim: true,
       },
     ],
     nutritionalValue: {
@@ -79,13 +113,37 @@ const ProductSchema = new mongoose.Schema(
       type: String,
       trim: true,
     },
-    isActive: {
+    isDeleted: {
       type: Boolean,
-      default: true,
+      default: false,
+      index: true,
+    },
+    deletedAt: {
+      type: Date,
+      default: null,
     },
   },
   {
     timestamps: true,
+  }
+);
+
+// Text indexes for Search implementation (Name, Description, Ingredients, SweetType)
+ProductSchema.index(
+  {
+    name: "text",
+    description: "text",
+    sweetType: "text",
+    ingredients: "text",
+  },
+  {
+    weights: {
+      name: 10,
+      sweetType: 5,
+      description: 3,
+      ingredients: 1,
+    },
+    name: "ProductTextIndex",
   }
 );
 

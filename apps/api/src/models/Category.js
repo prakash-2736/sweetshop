@@ -7,6 +7,7 @@ const CategorySchema = new mongoose.Schema(
       required: [true, "Category name is required"],
       unique: true,
       trim: true,
+      index: true,
     },
     slug: {
       type: String,
@@ -23,9 +24,14 @@ const CategorySchema = new mongoose.Schema(
       type: String,
       trim: true,
     },
-    isActive: {
+    isDeleted: {
       type: Boolean,
-      default: true,
+      default: false,
+      index: true,
+    },
+    deletedAt: {
+      type: Date,
+      default: null,
     },
   },
   {
