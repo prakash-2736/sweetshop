@@ -9,7 +9,7 @@ import { formatCurrency } from "@/utils";
 import { motion, AnimatePresence } from "framer-motion";
 import { CreditCard, Truck, CheckCircle2, ChevronRight, ArrowLeft, Loader2, Calendar, ShieldCheck } from "lucide-react";
 import Link from "next/link";
-import { SweetVector } from "@/components/common/ProductCard";
+import { SweetVector } from "@/features/home/components/ProductCard";
 
 // Validation schema using Zod
 const checkoutSchema = z.object({
@@ -24,7 +24,7 @@ const checkoutSchema = z.object({
 });
 
 export default function CheckoutForm() {
-  const { cart, subtotal, clearCart } = useCart();
+  const { cart, subtotal, totals, activeCoupon, clearCart } = useCart();
   const [step, setStep] = useState(1); // 1: Shipping, 2: Payment, 3: Success
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [orderId, setOrderId] = useState("");
@@ -395,42 +395,67 @@ export default function CheckoutForm() {
           <h3 className="font-bold text-lg text-stone-900 border-b pb-4">
             Order Summary
           </h3>
-
           <div className="divide-y max-h-[280px] overflow-y-auto pr-1">
-            {cart.map(({ product, quantity }) => (
-              <div key={product.id} className="py-3 flex items-center gap-3 first:pt-0 last:pb-0">
-                <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${product.color} flex items-center justify-center p-1.5 shrink-0`}>
-                  <div className={`${product.textColor} transform scale-[0.6]`}>
-                    <SweetVector category={product.category} color={product.color} name={product.name} />
+            {cart.map((item) => {
+              const product = item.product || item;
+              const quantity = item.quantity;
+              const activePrice = item.discountPrice || product.price;
+              return (
+                <div key={product.id} className="py-3 flex items-center gap-3 first:pt-0 last:pb-0">
+                  <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${product.color} flex items-center justify-center p-1.5 shrink-0`}>
+                    <div className={`${product.textColor} transform scale-[0.6]`}>
+                      <SweetVector category={product.category} color={product.color} name={product.name} />
+                    </div>
                   </div>
+                  <div className="flex-grow min-w-0">
+                    <h4 className="font-bold text-xs text-stone-900 truncate">
+                      {product.name}
+                    </h4>
+                    <p className="text-[10px] text-muted-foreground">
+                      Qty: {quantity} × {formatCurrency(activePrice)}
+                    </p>
+                  </div>
+                  <span className="font-bold text-xs text-stone-850 shrink-0">
+                    {formatCurrency(activePrice * quantity)}
+                  </span>
                 </div>
-                <div className="flex-grow min-w-0">
-                  <h4 className="font-bold text-xs text-stone-900 truncate">
-                    {product.name}
-                  </h4>
-                  <p className="text-[10px] text-muted-foreground">
-                    Qty: {quantity} × {formatCurrency(product.price)}
-                  </p>
-                </div>
-                <span className="font-bold text-xs text-stone-850 shrink-0">
-                  {formatCurrency(product.price * quantity)}
-                </span>
-              </div>
-            ))}
+              );
+            })}
           </div>
-
           <div className="border-t pt-4 space-y-2 text-xs text-muted-foreground">
             <div className="flex justify-between">
               <span>Subtotal</span>
               <span className="font-bold text-stone-850">{formatCurrency(subtotal)}</span>
             </div>
+
+            {/* Coupon Discount */}
+            {activeCoupon && (
+              <div className="flex justify-between text-rose-500 font-semibold">
+                <span>Coupon ({activeCoupon.code})</span>
+                <span>-{formatCurrency(totals.couponDiscount)}</span>
+              </div>
+            )}
+
+            {/* Shipping Charge */}
             <div className="flex justify-between">
               <span>Shipping & Handling</span>
-              <span className="text-emerald-600 font-bold uppercase tracking-wider text-[10px]">Free</span>
+              {totals.shippingCharge === 0 ? (
+                <span className="text-emerald-600 font-bold uppercase tracking-wider text-[10px]">Free</span>
+              ) : (
+                <span className="font-bold text-stone-850">{formatCurrency(totals.shippingCharge)}</span>
+              )}
             </div>
+
+            {/* Taxes */}
+            <div className="flex justify-between">
+              <span>Taxes & GST (5%)</span>
+              <span className="font-bold text-stone-850">{formatCurrency(totals.tax)}</span>
+            </div>
+
+            {/* Grand Total */}
             <div className="border-t border-dashed my-2 pt-2 flex justify-between font-extrabold text-sm text-stone-900">
               <span>Grand Total</span>
-              <span>{formatCurrency(subtotal)}</span>
+              <span className="text-amber-600">{formatCurrency(totals.grandTotal)}</span>
             </div>
           </div>
         </div>
