@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Mail, Phone, MapPin, Send, Instagram, Facebook, Heart } from "lucide-react";
+import { Mail, Phone, MapPin, Send, Heart } from "lucide-react";
 import { siteConfig } from "@/config/site";
 
 export default function Footer() {
@@ -79,7 +79,11 @@ export default function Footer() {
               className="p-2 bg-stone-850 hover:bg-stone-800 rounded-full transition-colors"
               aria-label="Instagram"
             >
-              <Instagram className="w-5 h-5 text-stone-400 hover:text-amber-400" />
+              <svg className="w-5 h-5 text-stone-400 hover:text-amber-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+                <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+                <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+              </svg>
             </a>
             <a
               href={siteConfig.socials.facebook}
@@ -88,7 +92,9 @@ export default function Footer() {
               className="p-2 bg-stone-850 hover:bg-stone-800 rounded-full transition-colors"
               aria-label="Facebook"
             >
-              <Facebook className="w-5 h-5 text-stone-400 hover:text-amber-400" />
+              <svg className="w-5 h-5 text-stone-400 hover:text-amber-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path>
+              </svg>
             </a>
           </div>
         </div>
