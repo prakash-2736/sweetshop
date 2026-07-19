@@ -1,5 +1,3 @@
-import { addDays, format } from "date-fns";
-
 /**
  * Returns estimated delivery date string based on number of days from today
  * @param {number} days 
@@ -7,15 +5,9 @@ import { addDays, format } from "date-fns";
  */
 export function getEstimatedDeliveryDate(days) {
   if (!days) return "";
-  try {
-    const deliveryDate = addDays(new Date(), days);
-    return format(deliveryDate, "eeee, MMM dd");
-  } catch (error) {
-    // fallback if date-fns is not ready or errors out
-    const today = new Date();
-    today.setDate(today.getDate() + days);
-    return today.toLocaleDateString("en-US", { weekday: "long", month: "short", day: "numeric" });
-  }
+  const today = new Date();
+  today.setDate(today.getDate() + days);
+  return today.toLocaleDateString("en-US", { weekday: "long", month: "short", day: "numeric" });
 }
 
 /**

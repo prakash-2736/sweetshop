@@ -6,6 +6,7 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { ShoppingCart, User, Search, Menu, X } from "lucide-react";
 import { useUiStore } from "@/store/useUiStore";
 import { useCart } from "@/hooks/useCart";
+import { useAuth } from "@/hooks/useAuth";
 import { motion, AnimatePresence } from "framer-motion";
 import Logo from "@/components/layout/Logo";
 import Container from "@/components/layout/Container";
@@ -16,6 +17,8 @@ function NavbarContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { count } = useCart();
+  const { isAuthenticated, user, logout } = useAuth();
+  const [isProfileOpen, setProfileOpen] = useState(false);
   
   const { isMobileNavOpen, setMobileNavOpen, setCartOpen, setSearchOpen } = useUiStore();
   const [isScrolled, setIsScrolled] = useState(false);
@@ -128,14 +131,71 @@ function NavbarContent() {
                 </AnimatePresence>
               </button>
 
-              {/* Profile icon placeholder */}
-              <Link
-                href="/checkout"
-                className="text-muted-foreground hover:text-foreground p-2 hover:bg-muted rounded-full transition-colors hidden sm:inline-flex"
-                aria-label="Account details"
-              >
-                <User className="w-5 h-5" />
-              </Link>
+              {/* Profile / Auth actions */}
+              <div className="relative hidden sm:inline-flex items-center gap-4">
+                {isAuthenticated ? (
+                  <div className="relative">
+                    <button
+                      onClick={() => setProfileOpen(!isProfileOpen)}
+                      className="w-9 h-9 rounded-full bg-amber-500 text-stone-950 font-bold flex items-center justify-center text-xs shadow-xs border border-white hover:ring-2 hover:ring-amber-500/35 transition-all cursor-pointer select-none"
+                    >
+                      {user?.avatar}
+                    </button>
+                    
+                    {/* Dropdown Menu */}
+                    <AnimatePresence>
+                      {isProfileOpen && (
+                        <>
+                          <div className="fixed inset-0 z-10" onClick={() => setProfileOpen(false)} />
+                          <motion.div
+                            initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                            animate={{ opacity: 1, y: 0, scale: 1 }}
+                            exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                            className="absolute right-0 mt-2.5 w-48 bg-white border border-stone-200 rounded-2xl shadow-lg z-20 py-2 text-xs font-semibold text-stone-700"
+                          >
+                            <div className="px-4 py-2 border-b border-stone-100 mb-1">
+                              <p className="font-extrabold text-stone-900 truncate">{user?.name}</p>
+                              <p className="text-[10px] text-stone-400 truncate">{user?.email}</p>
+                            </div>
+                            <Link
+                              href="/profile"
+                              className="block px-4 py-2 hover:bg-stone-50 hover:text-stone-900 transition-colors"
+                              onClick={() => setProfileOpen(false)}
+                            >
+                              My Profile
+                            </Link>
+                            <button
+                              onClick={() => {
+                                logout();
+                                setProfileOpen(false);
+                                router.push("/login");
+                              }}
+                              className="w-full text-left px-4 py-2 text-rose-500 hover:bg-rose-50 transition-colors cursor-pointer"
+                            >
+                              Log Out
+                            </button>
+                          </motion.div>
+                        </>
+                      )}
+                    </AnimatePresence>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-3">
+                    <Link
+                      href="/login"
+                      className="text-stone-600 hover:text-stone-900 text-xs font-bold px-3 py-2 transition-colors"
+                    >
+                      Log In
+                    </Link>
+                    <Link
+                      href="/signup"
+                      className="bg-stone-950 hover:bg-stone-900 active:scale-98 text-white font-bold px-4 py-2 rounded-xl text-xs transition-all shadow-xs"
+                    >
+                      Sign Up
+                    </Link>
+                  </div>
+                )}
+              </div>
 
               {/* Mobile Hamburger menu toggle */}
               <button
@@ -213,6 +273,57 @@ function NavbarContent() {
                   );
                 })}
               </nav>
+
+              {/* Mobile Profile options */}
+              <div className="mt-auto border-t pt-6 space-y-4">
+                {isAuthenticated ? (
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-3 px-3 py-2">
+                      <div className="w-10 h-10 rounded-full bg-amber-500 text-stone-950 font-bold flex items-center justify-center text-sm shadow-xs">
+                        {user?.avatar}
+                      </div>
+                      <div className="min-w-0">
+                        <p className="text-xs font-bold text-stone-900 truncate">{user?.name}</p>
+                        <p className="text-[10px] text-stone-400 truncate">{user?.email}</p>
+                      </div>
+                    </div>
+                    <Link
+                      href="/profile"
+                      className="block text-xs font-bold text-stone-600 hover:text-amber-600 py-2 px-3 hover:bg-stone-50 rounded-xl"
+                      onClick={() => setMobileNavOpen(false)}
+                    >
+                      My Profile
+                    </Link>
+                    <button
+                      onClick={() => {
+                        logout();
+                        setMobileNavOpen(false);
+                        router.push("/login");
+                      }}
+                      className="w-full text-left text-xs font-bold text-rose-500 hover:bg-rose-50 py-2 px-3 rounded-xl cursor-pointer"
+                    >
+                      Log Out
+                    </button>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-2 gap-3 px-3">
+                    <Link
+                      href="/login"
+                      className="bg-stone-100 hover:bg-stone-200 text-stone-750 font-bold py-2.5 rounded-xl text-xs text-center transition-all"
+                      onClick={() => setMobileNavOpen(false)}
+                    >
+                      Log In
+                    </Link>
+                    <Link
+                      href="/signup"
+                      className="bg-amber-500 hover:bg-amber-600 text-stone-950 font-bold py-2.5 rounded-xl text-xs text-center transition-all"
+                      onClick={() => setMobileNavOpen(false)}
+                    >
+                      Sign Up
+                    </Link>
+                  </div>
+                )}
+              </div>
             </motion.div>
           </>
         )}
