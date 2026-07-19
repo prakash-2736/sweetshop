@@ -3,7 +3,7 @@ const categoryRepository = require("../repositories/categoryRepository");
 const inventoryRepository = require("../repositories/inventoryRepository");
 const auditLogRepository = require("../repositories/auditLogRepository");
 const slugify = require("../utils/slugify");
-const cache = require("../utils/cache");
+const cache = require("../utils/cache").default;
 const mongoose = require("mongoose");
 
 class ProductService {
@@ -147,7 +147,7 @@ class ProductService {
       }
 
       const previousState = product.toObject();
-      
+
       // Update status to Archived and soft delete
       const deletedProduct = await productRepository.update(id, {
         isDeleted: true,

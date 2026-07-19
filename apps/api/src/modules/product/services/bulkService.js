@@ -3,7 +3,7 @@ const categoryRepository = require("../repositories/categoryRepository");
 const inventoryRepository = require("../repositories/inventoryRepository");
 const auditLogRepository = require("../repositories/auditLogRepository");
 const mongoose = require("mongoose");
-const cache = require("../utils/cache");
+const cache = require("../utils/cache").default;
 
 class BulkService {
   /**
@@ -231,7 +231,7 @@ class BulkService {
       for (const product of products) {
         const discountAmount = (product.price * discountPercentage) / 100;
         const discountPrice = Math.max(0, product.price - discountAmount);
-        
+
         product.discountPrice = discountPrice;
         await product.save({ session });
       }

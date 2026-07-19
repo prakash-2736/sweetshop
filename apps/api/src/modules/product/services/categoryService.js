@@ -2,7 +2,7 @@ const categoryRepository = require("../repositories/categoryRepository");
 const productRepository = require("../repositories/productRepository");
 const auditLogRepository = require("../repositories/auditLogRepository");
 const slugify = require("../utils/slugify");
-const cache = require("../utils/cache");
+const cache = require("../utils/cache").default;
 const mongoose = require("mongoose");
 
 class CategoryService {

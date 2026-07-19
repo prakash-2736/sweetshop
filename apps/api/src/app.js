@@ -4,6 +4,7 @@ const cors = require("cors");
 const compression = require("compression");
 const cookieParser = require("cookie-parser");
 const rateLimit = require("express-rate-limit");
+const mongoSanitize = require("express-mongo-sanitize");
 
 const config = require("./config");
 const logger = require("./middlewares/logger");
@@ -31,6 +32,10 @@ app.use(compression());
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 app.use(cookieParser());
+
+// 3.1 NoSQL Injection Protection
+app.use(mongoSanitize());
+
 
 // 4. Request Logging
 app.use(logger);

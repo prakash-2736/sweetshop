@@ -1,0 +1,19 @@
+# --- Build Stage ---
+FROM node:20-alpine AS builder
+WORKDIR /app
+COPY apps/api/package*.json ./
+RUN npm ci
+COPY apps/api/src ./src
+COPY apps/api/.env* ./
+
+# --- Run Stage ---
+FROM node:20-alpine AS runner
+WORKDIR /app
+ENV NODE_ENV=production
+COPY --from=builder /app/package*.json ./
+RUN npm ci --only=production
+COPY --from=builder /app/src ./src
+COPY --from=builder /app/uploads ./uploads
+
+EXPOSE 5000
+CMD ["node", "src/server.js"]
